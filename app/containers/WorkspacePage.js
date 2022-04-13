@@ -83,7 +83,7 @@ export const WorkspacePage = (props) => {
             </div>
           ))}
         </div>
-        {renderPrivateWorkspaceLink()}
+
       </div>
     </div>
   );

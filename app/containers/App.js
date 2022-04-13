@@ -179,7 +179,7 @@ export class App extends Component {
         {/* VersionCheck as overlay */}
         {this.renderVersionCheck()}
         <UpdateModal />
-        <UpdateDriverModal />
+
         <DeviceTimeModal />
         <AdHocModal />
       </div>

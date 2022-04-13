@@ -18,12 +18,12 @@
 import _ from 'lodash';
 import semver from 'semver';
 import os from 'os';
-import { push } from 'connected-react-router';
-import { checkCacheValid } from 'redux-cache';
+import {push} from 'connected-react-router';
+import {checkCacheValid} from 'redux-cache';
 
 import * as actionTypes from '../constants/actionTypes';
 import * as actionSources from '../constants/actionSources';
-import { pages, pagesMap, paths, steps, urls } from '../constants/otherConstants';
+import {pages, pagesMap} from '../constants/otherConstants';
 import ErrorMessages from '../constants/errorMessages';
 import * as metrics from '../constants/metrics';
 
@@ -95,81 +95,27 @@ export function doAppInit(opts, servicesToInit) {
         api,
         version: opts.namedVersion
       }, function(deviceError, deviceResult){
-        if (deviceError) {
-          return dispatch(sync.initializeAppFailure(deviceError));
-        }
+        if (deviceError) {return dispatch(sync.initializeAppFailure(deviceError));}
         log('Initializing api');
         api.init(function(apiError, apiResult){
           if (apiError) {
             return dispatch(sync.initializeAppFailure(apiError));
           }
           log('Setting all api hosts');
-          api.setHosts(_.pick(opts, ['API_URL', 'UPLOAD_URL', 'BLIP_URL', 'environment']));
-          dispatch(sync.setForgotPasswordUrl(api.makeBlipUrl(paths.FORGOT_PASSWORD)));
-          dispatch(sync.setSignUpUrl(api.makeBlipUrl(paths.SIGNUP)));
-          dispatch(sync.setNewPatientUrl(api.makeBlipUrl(paths.NEW_PATIENT)));
-          dispatch(sync.setBlipUrl(api.makeBlipUrl('/')));
-          let session = apiResult;
-          if (session === undefined) {
-            dispatch(setPage(pages.LOGIN));
-            dispatch(sync.initializeAppSuccess());
-            return dispatch(doVersionCheck());
+          //api.setHosts(_.pick(opts, ['API_URL', 'UPLOAD_URL', 'BLIP_URL', 'environment']));
+          //dispatch(sync.setForgotPasswordUrl(api.makeBlipUrl(paths.FORGOT_PASSWORD)));
+          //dispatch(sync.setSignUpUrl(api.makeBlipUrl(paths.SIGNUP)));
+          //dispatch(sync.setNewPatientUrl(api.makeBlipUrl(paths.NEW_PATIENT)));
+          //dispatch(sync.setBlipUrl(api.makeBlipUrl('/')));
+          var x = localStoreResult;
+          if (apiResult === undefined) {
+            /**
+             * session was in server
+             */
           }
-
-          api.user.initializationInfo((err, results) => {
-            const [ user, profile, memberships, associatedAccounts, clinics ] = results;
-            if (err) {
-              return dispatch(sync.initializeAppFailure(err));
-            }
-            dispatch(sync.initializeAppSuccess());
-            dispatch(doVersionCheck());
-            dispatch(sync.setUserInfoFromToken({
-              user: user,
-              profile: profile,
-              memberships: memberships
-            }));
-            dispatch(sync.getClinicsForClinicianSuccess(clinics, user.userid));
-            const isClinic = personUtils.isClinic(user);
-            if(!_.isEmpty(clinics)){
-              if (clinics.length == 1) { // select clinic and go to clinic user select page
-                let clinicId = _.get(clinics,'0.clinic.id',null);
-                dispatch(fetchPatientsForClinic(clinicId));
-                dispatch(sync.selectClinic(clinicId));
-                return dispatch(
-                  setPage(pages.CLINIC_USER_SELECT, actionSources.USER, {
-                    metric: { eventName: metrics.CLINIC_SEARCH_DISPLAYED },
-                  })
-                );
-              }
-              if (clinics.length > 1) { // more than one clinic - go to workspace switch
-                return dispatch(
-                  setPage(pages.WORKSPACE_SWITCH, actionSources.USER, {
-                    metric: { eventName: metrics.WORKSPACE_SWITCH_DISPLAYED}
-                  })
-                );
-              }
-            }
-            if(isClinic){ // "old" style clinic account without new clinic
-              return dispatch(
-                setPage(pages.CLINIC_USER_SELECT, actionSources.USER, {
-                  metric: { eventName: metrics.CLINIC_SEARCH_DISPLAYED },
-                })
-              );
-            }
-            // detect if a DSA here and redirect to data storage screen
-            const { targetUsersForUpload } = getState();
-            if (_.isEmpty(targetUsersForUpload)) {
-              return dispatch(setPage(pages.NO_UPLOAD_TARGETS));
-            }
-
-            const { uploadTargetUser } = getState();
-            if (uploadTargetUser !== null) {
-              dispatch(sync.setBlipViewDataUrl(
-                api.makeBlipUrl(actionUtils.viewDataPathForUser(uploadTargetUser))
-              ));
-            }
-            dispatch(retrieveTargetsFromStorage());
-          });
+          dispatch(setPage(pages.LOGIN));
+          dispatch(sync.initializeAppSuccess());
+          return dispatch(sync.versionCheckSuccess());
         });
       });
     });
@@ -186,61 +132,9 @@ export function doLogin(creds, opts) {
         return dispatch(sync.loginFailure(err.status));
       }
       const [{user}, profile, memberships] = results;
-      dispatch(fetchAssociatedAccounts(api));
-      dispatch(sync.loginSuccess({
-        user,
-        profile,
-        memberships
-      }));
-
-      const isClinic = personUtils.isClinic(user);
-
-      // detect if a VCA here and redirect to clinic user select screen
-      dispatch(getClinicsForClinician(api, user.userid, {}, (err, clinics) => {
-        if(err) {
-          return dispatch(sync.loginFailure(err));
-        }
-        if(!_.isEmpty(clinics)){
-          if (clinics.length == 1) { // select clinic and go to clinic user select page
-            let clinicId = _.get(clinics,'0.clinic.id',null);
-            dispatch(fetchPatientsForClinic(clinicId));
-            dispatch(sync.selectClinic(clinicId));
-            return dispatch(
-              setPage(pages.CLINIC_USER_SELECT, actionSources.USER, {
-                metric: { eventName: metrics.CLINIC_SEARCH_DISPLAYED },
-              })
-            );
-          }
-          if (clinics.length > 1) { // more than one clinic - go to workspace switch
-            return dispatch(
-              setPage(pages.WORKSPACE_SWITCH, actionSources.USER, {
-                metric: { eventName: metrics.WORKSPACE_SWITCH_DISPLAYED}
-              })
-            );
-          }
-        }
-        if(isClinic){ // "old" style clinic account without new clinic
-          return dispatch(
-            setPage(pages.CLINIC_USER_SELECT, actionSources.USER, {
-              metric: { eventName: metrics.CLINIC_SEARCH_DISPLAYED },
-            })
-          );
-        }
-        // detect if a DSA here and redirect to data storage screen
-        const { targetUsersForUpload } = getState();
-        if (_.isEmpty(targetUsersForUpload)) {
-          return dispatch(setPage(pages.NO_UPLOAD_TARGETS));
-        }
-
-        const { uploadTargetUser } = getState();
-        if (uploadTargetUser !== null) {
-          dispatch(sync.setBlipViewDataUrl(
-            api.makeBlipUrl(actionUtils.viewDataPathForUser(uploadTargetUser))
-          ));
-        }
-        dispatch(retrieveTargetsFromStorage());
-
-      }));
+      //dispatch(fetchAssociatedAccounts(api));
+      dispatch(sync.loginSuccess({user, profile, memberships}));
+      dispatch(retrieveTargetsFromStorage());
     });
   };
 }
@@ -361,7 +255,7 @@ export function doUpload(deviceKey, opts, utc) {
     const { devices, uploadTargetUser, working } = getState();
 
     if (opts && opts.ble) {
-      // we need to to scan for Bluetooth devices before the version check,
+      // we need to scan for Bluetooth devices before the version check,
       // otherwise it doesn't count as a response to a user request anymore
       dispatch(sync.uploadRequest(uploadTargetUser, devices[deviceKey], utc));
       console.log('Scanning..');
@@ -382,9 +276,22 @@ export function doUpload(deviceKey, opts, utc) {
       console.log('Done.');
     }
 
-    dispatch(sync.versionCheckRequest());
-    const { api } = services;
-    const version = versionInfo.semver;
+    //dispatch(sync.versionCheckRequest());
+    //const { api } = services;
+    //const version = versionInfo.semver;
+
+    if (working.uploading.inProgress === true) {
+      return dispatch(sync.uploadAborted());
+    }
+
+    dispatch(sync.uploadRequest(uploadTargetUser, devices[deviceKey], utc));
+
+    const targetDevice = devices[deviceKey];
+    const deviceType = targetDevice.source.type;
+
+    dispatch(doDeviceUpload(targetDevice.source.driverId, opts, utc));
+
+    /*
     api.upload.getVersions((err, versions) => {
       if (err) {
         dispatch(sync.versionCheckFailure(err));
@@ -420,6 +327,7 @@ export function doUpload(deviceKey, opts, utc) {
 
       dispatch(doDeviceUpload(targetDevice.source.driverId, opts, utc));
     });
+    */
   };
 }
 
@@ -713,6 +621,7 @@ export function retrieveTargetsFromStorage() {
     let fromLocalStore = false;
 
     dispatch(sync.retrieveUsersTargetsFromStorage());
+    /*
     let targets = localStore.getItem('devices');
     if (targets !== null) {
       fromLocalStore = true;
@@ -722,18 +631,21 @@ export function retrieveTargetsFromStorage() {
       dispatch(sync.setUploads(uploadsByUser));
       dispatch(sync.setUsersTargets(targets));
     }
+   */
 
     const { targetDevices, targetTimezones, allUsers, loggedInUser } = getState();
-    const isClinicAccount = personUtils.isClinicianAccount(allUsers[loggedInUser]);
 
+    /*
+    const isClinicAccount = personUtils.isClinicianAccount(allUsers[loggedInUser]);
     if (isClinicAccount) {
       return dispatch(
         setPage(
           pages.CLINIC_USER_SELECT,
-          null /*{metric: {eventName: metrics.CLINIC_SEARCH_DISPLAYED}}*/
+          {metric: {eventName: metrics.CLINIC_SEARCH_DISPLAYED}}
         )
       );
     }
+     */
     // redirect based on having a supported device if not clinic account
     if (!_.isEmpty(_.get(targetDevices, uploadTargetUser))) {
       let usersWithTargets = {};
@@ -759,38 +671,6 @@ export function retrieveTargetsFromStorage() {
       if(!fromLocalStore){
         const uploadsByUser = actionUtils.getDeviceTargetsByUser(usersWithTargets);
         dispatch(sync.setUploads(uploadsByUser));
-      } else {
-        if (
-          !_.isEmpty(targetDevices[uploadTargetUser]) &&
-          !_.isEmpty(targetTimezones[uploadTargetUser])
-        ) {
-          dispatch(sync.updateProfileRequest());
-          const updates = {
-            patient: {
-              targetDevices: targetDevices[uploadTargetUser],
-              targetTimezone: targetTimezones[uploadTargetUser],
-            },
-          };
-          api.user.updateProfile(uploadTargetUser, updates, (err, profile) => {
-            // suppress unauthorized error until custodial vs normal permissions are ironed out
-            // TODO: remove conditional when perms are finalized or accounts are converted
-            if (err) {
-              if (_.get(err, 'status') !== 401) {
-                dispatch(sync.updateProfileFailure(err));
-              } else {
-                let newProfile = actionUtils.mergeProfileUpdates(
-                  _.get(allUsers[uploadTargetUser], 'profile', {}),
-                  updates
-                );
-                dispatch(
-                  sync.updateProfileSuccess(newProfile, uploadTargetUser)
-                );
-              }
-            } else {
-              dispatch(sync.updateProfileSuccess(profile, uploadTargetUser));
-            }
-          });
-        }
       }
 
       if (atLeastOneDeviceSupportedOnSystem) {
@@ -798,7 +678,8 @@ export function retrieveTargetsFromStorage() {
       } else {
         return dispatch(setPage(pages.SETTINGS));
       }
-    } else {
+    }
+    else {
       return dispatch(setPage(pages.SETTINGS));
     }
   };

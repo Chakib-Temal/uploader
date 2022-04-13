@@ -1,5 +1,13 @@
 # Tidepool Uploader
 
+1. Installer Node.js (et nvm package installé par default avec  node)
+2. Installer nvm depuis node :  https://github.com/nvm-sh/nvm
+3. Redemarrer votre Bash (Terminal) pour pouvoir utiliser la commande nvm
+4. Cloner le projet depuis le depot : git clone ...
+5. Dans la racine du projet (utiliser node qui se trouve dans `.nvmrc` : nvm use
+6. Installer yarn : npm install --global yarn
+7. Installer les dépendances  : yarn (ou yarn install)
+8. Lancer l'application avec : yarn dev
 
 [![CircleCI](https://circleci.com/gh/tidepool-org/uploader/tree/master.svg?style=shield)](https://circleci.com/gh/tidepool-org/uploader/tree/master)
 [![Build status](https://ci.appveyor.com/api/projects/status/jj71uykxm27s3mla/branch/master?svg=true)](https://ci.appveyor.com/project/krystophv/uploader/branch/master)

@@ -30,6 +30,7 @@ import * as metrics from '../constants/metrics';
 import * as sync from './sync';
 import * as actionUtils from './utils';
 import personUtils from '../../lib/core/personUtils';
+import fs from 'fs';
 
 let services = {};
 let versionInfo = {};
@@ -107,15 +108,37 @@ export function doAppInit(opts, servicesToInit) {
           //dispatch(sync.setSignUpUrl(api.makeBlipUrl(paths.SIGNUP)));
           //dispatch(sync.setNewPatientUrl(api.makeBlipUrl(paths.NEW_PATIENT)));
           //dispatch(sync.setBlipUrl(api.makeBlipUrl('/')));
-          var x = localStoreResult;
-          if (apiResult === undefined) {
-            /**
-             * session was in server
-             */
-          }
-          dispatch(setPage(pages.LOGIN));
-          dispatch(sync.initializeAppSuccess());
-          return dispatch(sync.versionCheckSuccess());
+
+          fs.readFile('./file.json', 'utf-8', (error, data) => {
+            if (error || data.length == 0) {
+              console.log('Error reading session file.json', error);
+              dispatch(setPage(pages.LOGIN));
+              dispatch(sync.initializeAppSuccess());
+              return dispatch(sync.versionCheckSuccess());
+            }
+            const [{user}, profile, memberships] = JSON.parse(data);
+            var creds = {server : user.myprediServer, username : user.myprediUsername, password : user.myprediPassword};
+
+            api.user.loginExtended(creds, opts, (err, results) => {
+              if (err) {
+                dispatch(setPage(pages.LOGIN));
+                dispatch(sync.initializeAppSuccess());
+                return dispatch(sync.versionCheckSuccess());
+              }
+              const [{user}, profile, memberships] = results;
+
+              //var i = btoa('{"username" : "chakib"}');
+              fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
+                if (error){
+                  console.error('error: ' + error);
+                }
+              });
+              dispatch(sync.initializeAppSuccess());
+              dispatch(sync.versionCheckSuccess());
+              dispatch(sync.loginSuccess({user, profile, memberships}));
+              dispatch(retrieveTargetsFromStorage());
+            });
+          });
         });
       });
     });
@@ -133,6 +156,14 @@ export function doLogin(creds, opts) {
       }
       const [{user}, profile, memberships] = results;
       //dispatch(fetchAssociatedAccounts(api));
+
+      //var i = btoa('{"username" : "chakib"}');
+      fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
+        if (error){
+          console.error('error: ' + error);
+        }
+      });
+
       dispatch(sync.loginSuccess({user, profile, memberships}));
       dispatch(retrieveTargetsFromStorage());
     });

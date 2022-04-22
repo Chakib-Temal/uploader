@@ -61,9 +61,9 @@ export function getLoginErrorMessage(status) {
     case 400:
       return 'We need your e-mail to log you in!';
     case 401:
-      return 'Please check your e-mail and password.';
+      return 'Please check your server, e-mail and password.';
     default:
-      return 'We couldn\'t log you in. Try again in a few minutes.';
+      return 'Please check your server, e-mail and password.';
   }
 }
 

@@ -111,7 +111,7 @@ export function doAppInit(opts, servicesToInit) {
 
           fs.readFile('./file.json', 'utf-8', (error, data) => {
             if (error || data.length == 0) {
-              console.log('Error reading session file.json', error);
+              console.log('Error/empty session file.json', error);
               dispatch(setPage(pages.LOGIN));
               dispatch(sync.initializeAppSuccess());
               return dispatch(sync.versionCheckSuccess());
@@ -127,7 +127,6 @@ export function doAppInit(opts, servicesToInit) {
               }
               const [{user}, profile, memberships] = results;
 
-              //var i = btoa('{"username" : "chakib"}');
               fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
                 if (error){
                   console.error('error: ' + error);
@@ -157,7 +156,6 @@ export function doLogin(creds, opts) {
       const [{user}, profile, memberships] = results;
       //dispatch(fetchAssociatedAccounts(api));
 
-      //var i = btoa('{"username" : "chakib"}');
       fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
         if (error){
           console.error('error: ' + error);

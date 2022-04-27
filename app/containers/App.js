@@ -178,7 +178,8 @@ export class App extends Component {
         <Footer version={config.version} environment={this.state.server} />
         {/* VersionCheck as overlay */}
         {this.renderVersionCheck()}
-        <UpdateModal />
+        {/* <UpdateModal /> */}
+        {/* <UpdateDriverModal /> */}
 
         <DeviceTimeModal />
         <AdHocModal />

@@ -149,7 +149,7 @@ export default connect(
       allUsers: state.allUsers,
       blipUrls: state.blipUrls,
       dropdown: state.dropdown,
-      loggedInUser: state.loggedInUser,
+      //loggedInUser: state.loggedInUser,
       targetUsersForUpload: state.targetUsersForUpload,
       uploadIsInProgress: state.working.uploading.inProgress,
       clinics: state.clinics,

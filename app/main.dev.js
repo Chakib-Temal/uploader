@@ -128,7 +128,7 @@ operating system, as soon as possible.`,
 
     mainWindow.show();
     mainWindow.focus();
-    checkUpdates();
+    //checkUpdates();
   });
 
   mainWindow.webContents.on('new-window', function(event, url){
@@ -183,13 +183,13 @@ operating system, as soon as possible.`,
       submenu: [{
         label: i18n.t('About Tidepool Uploader'),
         selector: 'orderFrontStandardAboutPanel:'
-      }, {
+      },/* {
         label: i18n.t('Check for Updates'),
         click() {
           manualCheck = true;
-          autoUpdater.checkForUpdates();
+          //autoUpdater.checkForUpdates();
         }
-      }, {
+      },*/ {
         type: 'separator'
       }, {
         label: i18n.t('Hide Tidepool Uploader'),
@@ -405,16 +405,16 @@ operating system, as soon as possible.`,
         click() {
           shell.openExternal('http://support.tidepool.org/');
         }
-      }, {
+      }, /*{
         label: i18n.t('Check for Updates'),
         click() {
           manualCheck = true;
-          autoUpdater.checkForUpdates();
+          //autoUpdater.checkForUpdates();
         }
-      }, {
+      },*/ {
         label: i18n.t('Privacy Policy'),
         click() {
-          shell.openExternal('https://developer.tidepool.org/privacy-policy/');
+          shell.openExternal('https://www.predimed-technology.com/privacy-policy/');
         }
       }]
     }];
@@ -428,11 +428,11 @@ function checkUpdates(){
   // in production NODE_ENV we check for updates, but not if NODE_ENV is 'development'
   // this prevents a Webpack build error that masks other build errors during local development
   if (process.env.NODE_ENV === 'production') {
-    autoUpdater.checkForUpdates();
+    //autoUpdater.checkForUpdates();
   }
 }
 
-setInterval(checkUpdates, 1000 * 60 * 60 * 24);
+//setInterval(checkUpdates, 1000 * 60 * 60 * 24);
 
 let manualCheck = false;
 
@@ -441,16 +441,18 @@ function sendAction(action) {
 }
 
 autoUpdater.on('checking-for-update', () => {
+  /*
   if(manualCheck) {
     manualCheck = false;
     sendAction(syncActions.manualCheckingForUpdates());
   } else {
     sendAction(syncActions.autoCheckingForUpdates());
   }
+   */
 });
 
 autoUpdater.on('update-available', (ev, info) => {
-  sendAction(syncActions.updateAvailable(info));
+  //sendAction(syncActions.updateAvailable(info));
   /*
   Example `info`
   {
@@ -463,22 +465,23 @@ autoUpdater.on('update-available', (ev, info) => {
 });
 
 autoUpdater.on('update-not-available', (ev, info) => {
-  sendAction(syncActions.updateNotAvailable(info));
+  //sendAction(syncActions.updateNotAvailable(info));
 });
 
 autoUpdater.on('error', (ev, err) => {
-  sendAction(syncActions.autoUpdateError(err));
+  //sendAction(syncActions.autoUpdateError(err));
 });
 
 autoUpdater.on('update-downloaded', (ev, info) => {
-  sendAction(syncActions.updateDownloaded(info));
+  //sendAction(syncActions.updateDownloaded(info));
 });
 
 ipcMain.on('autoUpdater', (event, arg) => {
-  if(arg === 'checkForUpdates') {
+  /*if(arg === 'checkForUpdates') {
     manualCheck = true;
   }
   autoUpdater[arg]();
+  */
 });
 
 if(!app.isDefaultProtocolClient('tidepoolupload')){

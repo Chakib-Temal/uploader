@@ -30,7 +30,7 @@ import * as metrics from '../constants/metrics';
 import * as sync from './sync';
 import * as actionUtils from './utils';
 import personUtils from '../../lib/core/personUtils';
-import fs from 'fs';
+import {ipcRenderer} from 'electron';
 
 let services = {};
 let versionInfo = {};
@@ -109,35 +109,33 @@ export function doAppInit(opts, servicesToInit) {
           //dispatch(sync.setNewPatientUrl(api.makeBlipUrl(paths.NEW_PATIENT)));
           //dispatch(sync.setBlipUrl(api.makeBlipUrl('/')));
 
-          fs.readFile('./file.json', 'utf-8', (error, data) => {
-            if (error || data.length == 0) {
-              console.log('Error/empty session file.json', error);
-              dispatch(setPage(pages.LOGIN));
-              dispatch(sync.initializeAppSuccess());
-              return dispatch(sync.versionCheckSuccess());
-            }
-            const [{user}, profile, memberships] = JSON.parse(data);
-            var creds = {server : user.myprediServer, username : user.myprediUsername, password : user.myprediPassword};
-
-            api.user.loginExtended(creds, opts, (err, results) => {
-              if (err) {
-                dispatch(setPage(pages.LOGIN));
-                dispatch(sync.initializeAppSuccess());
-                return dispatch(sync.versionCheckSuccess());
-              }
-              const [{user}, profile, memberships] = results;
-
-              fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
-                if (error){
-                  console.error('error: ' + error);
+          ipcRenderer.invoke('read-user-data', 'user.json').then(
+              data => {
+                console.log(data);
+                if (data.length < 3) {
+                  console.log('Error/empty session user.json');
+                  dispatch(setPage(pages.LOGIN));
+                  dispatch(sync.initializeAppSuccess());
+                  return dispatch(sync.versionCheckSuccess());
                 }
-              });
-              dispatch(sync.initializeAppSuccess());
-              dispatch(sync.versionCheckSuccess());
-              dispatch(sync.loginSuccess({user, profile, memberships}));
-              dispatch(retrieveTargetsFromStorage());
-            });
-          });
+                const [{user}, profile, memberships] = JSON.parse(data);
+                var creds = {server : user.myprediServer, username : user.myprediUsername, password : user.myprediPassword};
+
+                api.user.loginExtended(creds, opts, (err, results) => {
+                  if (err) {
+                    dispatch(setPage(pages.LOGIN));
+                    dispatch(sync.initializeAppSuccess());
+                    return dispatch(sync.versionCheckSuccess());
+                  }
+                  const [{user}, profile, memberships] = results;
+                  ipcRenderer.send('write-user-data', results);
+                  dispatch(sync.initializeAppSuccess());
+                  dispatch(sync.versionCheckSuccess());
+                  dispatch(sync.loginSuccess({user, profile, memberships}));
+                  dispatch(retrieveTargetsFromStorage());
+                });
+              }
+          );
         });
       });
     });
@@ -155,13 +153,7 @@ export function doLogin(creds, opts) {
       }
       const [{user}, profile, memberships] = results;
       //dispatch(fetchAssociatedAccounts(api));
-
-      fs.writeFile('./file.json',JSON.stringify(results), 'utf-8', (error, data) => {
-        if (error){
-          console.error('error: ' + error);
-        }
-      });
-
+      ipcRenderer.send('write-user-data', results);
       dispatch(sync.loginSuccess({user, profile, memberships}));
       dispatch(retrieveTargetsFromStorage());
     });

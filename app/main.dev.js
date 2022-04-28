@@ -1,18 +1,17 @@
 /* global __ROLLBAR_POST_TOKEN__ */
 import _ from 'lodash';
-import { app, BrowserWindow, Menu, shell, ipcMain, crashReporter, dialog } from 'electron';
+import {app, BrowserWindow, crashReporter, dialog, ipcMain, Menu, shell} from 'electron';
 import os from 'os';
 import osName from 'os-name';
 import open from 'open';
-import { autoUpdater } from 'electron-updater';
+import {autoUpdater} from 'electron-updater';
 import * as chromeFinder from 'chrome-launcher/dist/chrome-finder';
-import { sync as syncActions } from './actions';
-import debugMode from '../app/utils/debugMode';
 import Rollbar from 'rollbar/src/server/rollbar';
 import uploadDataPeriod from './utils/uploadDataPeriod';
 import i18n from 'i18next';
 import i18nextBackend from 'i18next-fs-backend';
 import i18nextOptions from './utils/config.i18next';
+import fs from 'fs';
 
 global.i18n = i18n;
 
@@ -482,6 +481,24 @@ ipcMain.on('autoUpdater', (event, arg) => {
   }
   autoUpdater[arg]();
   */
+});
+
+ipcMain.handle('read-user-data', async (event, fileName) => {
+  try {
+    const path = app.getPath('userData');
+    return await fs.promises.readFile(`${path}/${fileName}`, 'utf-8');
+  } catch (e){
+    return '';
+  }
+});
+
+ipcMain.on('write-user-data', async (event, results) => {
+  const path = app.getPath('userData');
+  fs.writeFile(path+ '/user.json',results.length == 0 ? '' : JSON.stringify(results), 'utf-8', (error, data) => {
+    if (error){
+      console.error('write user data error: ' + error);
+    }
+  });
 });
 
 if(!app.isDefaultProtocolClient('tidepoolupload')){

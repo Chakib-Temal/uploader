@@ -31,7 +31,7 @@ import * as actionSources from '../constants/actionSources';
 import { pages, pagesMap } from '../constants/otherConstants';
 
 import styles from '../../styles/components/Header.module.less';
-import logo from '../../images/Tidepool_Logo_Light x2.png';
+import logo from '../../images/Tidepool_Logo_Light x3.png';
 
 import { remote } from 'electron';
 const i18n = remote.getGlobal( 'i18n' );
@@ -95,15 +95,8 @@ export class Header extends Component {
     if (location.pathname === pagesMap.LOGIN) {
       return (
         <div className={styles.header}>
-          <div className={styles.signup}>
-            <a className={styles.signupLink} href={this.props.blipUrls.signUp} target="_blank">
-              <i className={styles.signupIcon}> {i18n.t('Sign up')}</i></a>
-          </div>
           <div className={styles.logoWrapper}>
             <img className={styles.logo} src={logo} />
-          </div>
-          <div className={styles.heroText}>
-            {i18n.t('Uploader')}
           </div>
         </div>
       );

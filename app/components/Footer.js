@@ -47,10 +47,10 @@ export default class Footer extends Component {
       <div className={styles.footer}>
         <div className={styles.footerRow}>
           <div>
-            <a className={styles.footerLink} href="http://support.tidepool.org/" target="_blank">{i18n.t('Get Support')}</a>
+            <a className={styles.footerLink} href="https://www.predimed-technology.fr/politique-de-confidentialite/" target="_blank">{i18n.t('Get Support')}</a>
           </div>
           <div>
-            <a className={styles.footerLink} href="http://tidepool.org/legal/" target="_blank">{i18n.t('Privacy and Terms of Use')}</a>
+            <a className={styles.footerLink} href="https://www.predimed-technology.fr/mentions-legales/" target="_blank">{i18n.t('Privacy and Terms of Use')}</a>
           </div>
           <div className={styles.jdrfContainer}>
             <span className={styles.jdrfText}>{i18n.t('Made possible by')}</span><img className={styles.jdrfImage} src={logo}/>

@@ -81,10 +81,10 @@ export class Login extends Component {
             <input className={styles.input} ref={(input) => { this.server = input; }} defaultValue={'ecare-test2.predimed-technology.com'} placeholder={i18n.t('Server')}/>
           </div>
           <div className={styles.inputWrap}>
-            <input className={styles.input} ref={(input) => { this.username = input; }} defaultValue={'prenom_nom111'} placeholder={i18n.t('Email')}/>
+            <input className={styles.input} ref={(input) => { this.username = input; }} defaultValue={''} placeholder={i18n.t('Email')}/>
           </div>
           <div className={styles.inputWrap}>
-            <input className={styles.input} ref={(input) => { this.password = input; }} defaultValue={'qrlqO57JQzhJ5!1634034386704'} placeholder={i18n.t('Password')} type="password"/>
+            <input className={styles.input} ref={(input) => { this.password = input; }} defaultValue={''} placeholder={i18n.t('Password')} type="password"/>
           </div>
           <div className={styles.actions}>
             <div>

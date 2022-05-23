@@ -2,7 +2,7 @@ const config = {
   publish: [
       'github'
   ],
-  productName: 'Tidepool Uploader',
+  productName: 'Mypredi Uploader',
   appId: 'org.tidepool.TidepoolUploader',
   directories: {
     buildResources: 'resources',

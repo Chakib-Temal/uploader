@@ -1,6 +1,6 @@
 {
-  "name": "tidepool-uploader",
-  "productName": "tidepool-uploader",
+  "name": "mypredi-uploader",
+  "productName": "mypredi-uploader",
   "version": "2.45.0",
   "description": "Tidepool Project Universal Uploader",
   "main": "./main.prod.js",

@@ -6,8 +6,10 @@
 4. Cloner le projet depuis le depot : git clone ...
 5. Dans la racine du projet (utiliser node qui se trouve dans `.nvmrc` : nvm use
 6. Installer yarn : npm install --global yarn
-7. Installer les dépendances  : yarn (ou yarn install)
-8. Lancer l'application avec : yarn dev
+7. Installer les dépendances  : yarn (ou yarn install) / windows : npm install
+8. Lancer l'application avec : yarn dev / npm run dev
+9. Build exe : npm run package
+10. Chercher l'excutable .exe dans $DIR_PROJECT/uploader/release
 
 [![CircleCI](https://circleci.com/gh/tidepool-org/uploader/tree/master.svg?style=shield)](https://circleci.com/gh/tidepool-org/uploader/tree/master)
 
